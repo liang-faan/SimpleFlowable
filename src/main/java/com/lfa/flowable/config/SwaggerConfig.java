@@ -20,7 +20,7 @@ public class SwaggerConfig implements WebMvcConfigurer {
 
 	@Bean
 	public Docket createRestApi() {
-		String packageName = "com.gitee.approval.controller";
+		String packageName = "com.lfa.flowable";
 		Predicate<RequestHandler> basePackage = RequestHandlerSelectors.basePackage(packageName);
 
 		ApiInfoBuilder builder = new ApiInfoBuilder();

@@ -532,3 +532,11 @@ curl -X GET "http://127.0.0.1:9080/process/history?assignee=tang" -H "accept: ap
   ]
 }
 ```
+
+
+### Fix existing runtime task point to latest deployment
+```sql
+flowable=# select * from ACT_RE_PROCDEF;
+flowable=# update act_ru_execution set proc_def_id_ = '<new deployment def>' where proc_def_id_='<existing deployment def>';
+flowable=# update act_ru_task set proc_def_id_ = '<new deployment def>' where proc_def_id_='<existing deployment def>';
+```
