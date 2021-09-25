@@ -1,8 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+xmlns:activiti="http://activiti.org/bpmn"
+xmlns:flowable="http://flowable.org/bpmn"
+xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC"
+xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI"
+typeLanguage="http://www.w3.org/2001/XMLSchema"
+expressionLanguage="http://www.w3.org/1999/XPath"
+targetNamespace="http://flowable.org/bpmn20">
   <process id="requestResourceApprovalProcess" name="Request Resource Approval " isExecutable="true">
     <startEvent id="starter" name="Starter"></startEvent>
-    <serviceTask id="sendJuniorRejectEmail" name="发送初级审批拒绝邮件" activiti:class="SendJuniorRejectionMailDelegate"></serviceTask>
+    <serviceTask id="sendJuniorRejectEmail" name="发送初级审批拒绝邮件" flowable:delegateExpression="${sendJuniorRejectionMail}"></serviceTask>
     <endEvent id="juniorRejectEnd" name="Junior Reject End"></endEvent>
     <sequenceFlow id="flow5" sourceRef="sendJuniorRejectEmail" targetRef="juniorRejectEnd"></sequenceFlow>
     <userTask id="seniorApproval" name="高级审批" activiti:assignee="${seniorAdmin}"></userTask>
@@ -20,7 +30,7 @@
     <sequenceFlow id="seniorSuccessFlow" name="同意" sourceRef="exclusivegateway2" targetRef="sendApprovalSuccessEmail">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approved=='Y'}]]></conditionExpression>
     </sequenceFlow>
-    <serviceTask id="sendSeniorRejectEmail" name="发送高级审批拒绝邮件" activiti:class="SendSeniorRejectionMailDelegate"></serviceTask>
+    <serviceTask id="sendSeniorRejectEmail" name="发送高级审批拒绝邮件" flowable:delegateExpression="${sendSeniorRejectionMail}"></serviceTask>
     <endEvent id="seniorRejectEnd" name="Senior Reject End"></endEvent>
     <sequenceFlow id="seniorRejectFlow" name="拒绝" sourceRef="exclusivegateway2" targetRef="sendSeniorRejectEmail">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approved=='N'}]]></conditionExpression>
@@ -28,7 +38,7 @@
     <sequenceFlow id="flow9" sourceRef="sendSeniorRejectEmail" targetRef="seniorRejectEnd"></sequenceFlow>
     <sequenceFlow id="flow11" sourceRef="juniorApproval" targetRef="exclusivegateway1"></sequenceFlow>
     <sequenceFlow id="flow12" sourceRef="starter" targetRef="juniorApproval"></sequenceFlow>
-    <serviceTask id="sendApprovalSuccessEmail" name="发送审批通过邮件" activiti:class="SendApprovalSuccessEmailDelegate"></serviceTask>
+    <serviceTask id="sendApprovalSuccessEmail" name="发送审批通过邮件" flowable:delegateExpression="${sendApprovalSuccessEmail}"></serviceTask>
     <sequenceFlow id="flow13" sourceRef="sendApprovalSuccessEmail" targetRef="approvalSuccessEnd"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_requestResourceApprovalProcess">

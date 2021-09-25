@@ -2,7 +2,7 @@
 
 ## 一、模块功能
 
-基于Flowable6.4和SpringBoot2实现的流程审批服务模块，具有如下接口功能：
+基于Flowable6.7和SpringBoot2实现的流程审批服务模块，具有如下接口功能：
 
 - 开启一个审批流程
 
@@ -55,40 +55,139 @@
 
 BPMN流程定义文件src/main/resources/processes/request-approval-resource.bpmn：
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
-<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
-  <process id="requestResourceApprovalProcess" name="Request Resource Approval " isExecutable="true">
-    <startEvent id="starter" name="Starter"></startEvent>
-    <serviceTask id="sendJuniorRejectEmail" name="发送初级审批拒绝邮件" activiti:class="SendJuniorRejectionMailDelegate"></serviceTask>
-    <endEvent id="juniorRejectEnd" name="Junior Reject End"></endEvent>
-    <sequenceFlow id="flow5" sourceRef="sendJuniorRejectEmail" targetRef="juniorRejectEnd"></sequenceFlow>
-    <userTask id="seniorApproval" name="高级审批" activiti:assignee="${seniorAdmin}"></userTask>
-    <userTask id="juniorApproval" name="初级审批" activiti:assignee="${juniorAdmin}"></userTask>
-    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway1"></exclusiveGateway>
-    <sequenceFlow id="juniorSuccessFlow" name="同意" sourceRef="exclusivegateway1" targetRef="seniorApproval">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approved=='Y'}]]></conditionExpression>
-    </sequenceFlow>
-    <sequenceFlow id="juniorRejectFlow" name="拒绝" sourceRef="exclusivegateway1" targetRef="sendJuniorRejectEmail">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approved=='N'}]]></conditionExpression>
-    </sequenceFlow>
-    <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway2"></exclusiveGateway>
-    <sequenceFlow id="flow7" sourceRef="seniorApproval" targetRef="exclusivegateway2"></sequenceFlow>
-    <endEvent id="approvalSuccessEnd" name="Approval Success End"></endEvent>
-    <sequenceFlow id="seniorSuccessFlow" name="同意" sourceRef="exclusivegateway2" targetRef="sendApprovalSuccessEmail">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approved=='Y'}]]></conditionExpression>
-    </sequenceFlow>
-    <serviceTask id="sendSeniorRejectEmail" name="发送高级审批拒绝邮件" activiti:class="SendSeniorRejectionMailDelegate"></serviceTask>
-    <endEvent id="seniorRejectEnd" name="Senior Reject End"></endEvent>
-    <sequenceFlow id="seniorRejectFlow" name="拒绝" sourceRef="exclusivegateway2" targetRef="sendSeniorRejectEmail">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approved=='N'}]]></conditionExpression>
-    </sequenceFlow>
-    <sequenceFlow id="flow9" sourceRef="sendSeniorRejectEmail" targetRef="seniorRejectEnd"></sequenceFlow>
-    <sequenceFlow id="flow11" sourceRef="juniorApproval" targetRef="exclusivegateway1"></sequenceFlow>
-    <sequenceFlow id="flow12" sourceRef="starter" targetRef="juniorApproval"></sequenceFlow>
-    <serviceTask id="sendApprovalSuccessEmail" name="发送审批通过邮件" activiti:class="SendApprovalSuccessEmailDelegate"></serviceTask>
-    <sequenceFlow id="flow13" sourceRef="sendApprovalSuccessEmail" targetRef="approvalSuccessEnd"></sequenceFlow>
-  </process>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:activiti="http://activiti.org/bpmn"
+             xmlns:flowable="http://flowable.org/bpmn"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI"
+             typeLanguage="http://www.w3.org/2001/XMLSchema"
+             expressionLanguage="http://www.w3.org/1999/XPath"
+             targetNamespace="http://flowable.org/bpmn20">
+    <process id="requestResourceApprovalProcess" name="Request Resource Approval " isExecutable="true">
+        <startEvent id="starter" name="Starter"></startEvent>
+        <serviceTask id="sendJuniorRejectEmail" name="发送初级审批拒绝邮件" flowable:delegateExpression="${sendJuniorRejectionMail}"></serviceTask>
+        <endEvent id="juniorRejectEnd" name="Junior Reject End"></endEvent>
+        <sequenceFlow id="flow5" sourceRef="sendJuniorRejectEmail" targetRef="juniorRejectEnd"></sequenceFlow>
+        <userTask id="seniorApproval" name="高级审批" activiti:assignee="${seniorAdmin}"></userTask>
+        <userTask id="juniorApproval" name="初级审批" activiti:assignee="${juniorAdmin}"></userTask>
+        <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway1"></exclusiveGateway>
+        <sequenceFlow id="juniorSuccessFlow" name="同意" sourceRef="exclusivegateway1" targetRef="seniorApproval">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approved=='Y'}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="juniorRejectFlow" name="拒绝" sourceRef="exclusivegateway1" targetRef="sendJuniorRejectEmail">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approved=='N'}]]></conditionExpression>
+        </sequenceFlow>
+        <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway2"></exclusiveGateway>
+        <sequenceFlow id="flow7" sourceRef="seniorApproval" targetRef="exclusivegateway2"></sequenceFlow>
+        <endEvent id="approvalSuccessEnd" name="Approval Success End"></endEvent>
+        <sequenceFlow id="seniorSuccessFlow" name="同意" sourceRef="exclusivegateway2" targetRef="sendApprovalSuccessEmail">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approved=='Y'}]]></conditionExpression>
+        </sequenceFlow>
+        <serviceTask id="sendSeniorRejectEmail" name="发送高级审批拒绝邮件" flowable:delegateExpression="${sendSeniorRejectionMail}"></serviceTask>
+        <endEvent id="seniorRejectEnd" name="Senior Reject End"></endEvent>
+        <sequenceFlow id="seniorRejectFlow" name="拒绝" sourceRef="exclusivegateway2" targetRef="sendSeniorRejectEmail">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approved=='N'}]]></conditionExpression>
+        </sequenceFlow>
+        <sequenceFlow id="flow9" sourceRef="sendSeniorRejectEmail" targetRef="seniorRejectEnd"></sequenceFlow>
+        <sequenceFlow id="flow11" sourceRef="juniorApproval" targetRef="exclusivegateway1"></sequenceFlow>
+        <sequenceFlow id="flow12" sourceRef="starter" targetRef="juniorApproval"></sequenceFlow>
+        <serviceTask id="sendApprovalSuccessEmail" name="发送审批通过邮件" flowable:delegateExpression="${sendApprovalSuccessEmail}"></serviceTask>
+        <sequenceFlow id="flow13" sourceRef="sendApprovalSuccessEmail" targetRef="approvalSuccessEnd"></sequenceFlow>
+    </process>
+    <bpmndi:BPMNDiagram id="BPMNDiagram_requestResourceApprovalProcess">
+        <bpmndi:BPMNPlane bpmnElement="requestResourceApprovalProcess" id="BPMNPlane_requestResourceApprovalProcess">
+            <bpmndi:BPMNShape bpmnElement="starter" id="BPMNShape_starter">
+                <omgdc:Bounds height="35.0" width="35.0" x="45.0" y="118.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="sendJuniorRejectEmail" id="BPMNShape_sendJuniorRejectEmail">
+                <omgdc:Bounds height="71.0" width="171.0" x="340.0" y="230.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="juniorRejectEnd" id="BPMNShape_juniorRejectEnd">
+                <omgdc:Bounds height="35.0" width="35.0" x="408.0" y="385.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="seniorApproval" id="BPMNShape_seniorApproval">
+                <omgdc:Bounds height="78.0" width="121.0" x="575.0" y="95.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="juniorApproval" id="BPMNShape_juniorApproval">
+                <omgdc:Bounds height="81.0" width="115.0" x="170.0" y="95.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+                <omgdc:Bounds height="40.0" width="40.0" x="405.0" y="113.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="exclusivegateway2" id="BPMNShape_exclusivegateway2">
+                <omgdc:Bounds height="40.0" width="40.0" x="765.0" y="115.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="approvalSuccessEnd" id="BPMNShape_approvalSuccessEnd">
+                <omgdc:Bounds height="35.0" width="35.0" x="1140.0" y="117.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="sendSeniorRejectEmail" id="BPMNShape_sendSeniorRejectEmail">
+                <omgdc:Bounds height="71.0" width="192.0" x="690.0" y="230.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="seniorRejectEnd" id="BPMNShape_seniorRejectEnd">
+                <omgdc:Bounds height="35.0" width="35.0" x="768.0" y="385.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape bpmnElement="sendApprovalSuccessEmail" id="BPMNShape_sendApprovalSuccessEmail">
+                <omgdc:Bounds height="75.0" width="141.0" x="920.0" y="96.0"></omgdc:Bounds>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
+                <omgdi:waypoint x="425.0" y="301.0"></omgdi:waypoint>
+                <omgdi:waypoint x="425.0" y="385.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="juniorSuccessFlow" id="BPMNEdge_juniorSuccessFlow">
+                <omgdi:waypoint x="445.0" y="133.0"></omgdi:waypoint>
+                <omgdi:waypoint x="575.0" y="134.0"></omgdi:waypoint>
+                <bpmndi:BPMNLabel>
+                    <omgdc:Bounds height="16.0" width="32.0" x="445.0" y="133.0"></omgdc:Bounds>
+                </bpmndi:BPMNLabel>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="juniorRejectFlow" id="BPMNEdge_juniorRejectFlow">
+                <omgdi:waypoint x="425.0" y="153.0"></omgdi:waypoint>
+                <omgdi:waypoint x="425.0" y="230.0"></omgdi:waypoint>
+                <bpmndi:BPMNLabel>
+                    <omgdc:Bounds height="16.0" width="32.0" x="425.0" y="153.0"></omgdc:Bounds>
+                </bpmndi:BPMNLabel>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
+                <omgdi:waypoint x="696.0" y="134.0"></omgdi:waypoint>
+                <omgdi:waypoint x="765.0" y="135.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="seniorSuccessFlow" id="BPMNEdge_seniorSuccessFlow">
+                <omgdi:waypoint x="805.0" y="135.0"></omgdi:waypoint>
+                <omgdi:waypoint x="920.0" y="133.0"></omgdi:waypoint>
+                <bpmndi:BPMNLabel>
+                    <omgdc:Bounds height="16.0" width="32.0" x="805.0" y="135.0"></omgdc:Bounds>
+                </bpmndi:BPMNLabel>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="seniorRejectFlow" id="BPMNEdge_seniorRejectFlow">
+                <omgdi:waypoint x="785.0" y="155.0"></omgdi:waypoint>
+                <omgdi:waypoint x="786.0" y="230.0"></omgdi:waypoint>
+                <bpmndi:BPMNLabel>
+                    <omgdc:Bounds height="16.0" width="32.0" x="785.0" y="155.0"></omgdc:Bounds>
+                </bpmndi:BPMNLabel>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
+                <omgdi:waypoint x="786.0" y="301.0"></omgdi:waypoint>
+                <omgdi:waypoint x="785.0" y="385.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="flow11" id="BPMNEdge_flow11">
+                <omgdi:waypoint x="285.0" y="135.0"></omgdi:waypoint>
+                <omgdi:waypoint x="405.0" y="133.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="flow12" id="BPMNEdge_flow12">
+                <omgdi:waypoint x="80.0" y="135.0"></omgdi:waypoint>
+                <omgdi:waypoint x="170.0" y="135.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge bpmnElement="flow13" id="BPMNEdge_flow13">
+                <omgdi:waypoint x="1061.0" y="133.0"></omgdi:waypoint>
+                <omgdi:waypoint x="1140.0" y="134.0"></omgdi:waypoint>
+            </bpmndi:BPMNEdge>
+        </bpmndi:BPMNPlane>
+    </bpmndi:BPMNDiagram>
 </definitions>
 ```
 
@@ -104,15 +203,17 @@ sh build.sh
 
 ### 2、程序部署
 
-- 使用项目中的flowable-6.4.1-mysql.sql文件初始化一个mysql数据库
+- 使用项目中的flowable-6.4.1-mysql.sql文件初始化一个mysql数据库 (deprecated)
 
-- 将上述程序打包的target目录下的xxx.tar.gz文件拷贝到部署目录下并解压即可
+- 将上述程序打包的target目录下的xxx.tar.gz文件拷贝到部署目录下并解压即可 
+
+- swagger access URL: http://localhost:9080/swagger-ui.html
 
 ### 3、文件配置
 
 配置文件路径：conf/application.properties
 
-```
+```properties
 # server port settings
 server.port=9080
 
